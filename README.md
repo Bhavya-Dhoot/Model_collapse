@@ -2,6 +2,10 @@
 
 Code, experiments, and findings. (Paper is withheld pending conference presentation.)
 
+<p align="center">
+  <img src="docs/architecture.svg" alt="Experiment architecture: an anchored self-consuming loop measuring how much real data prevents tabular model collapse" width="100%">
+</p>
+
 ## Layout
 
 ```

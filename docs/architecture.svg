@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 692" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-label="Experiment architecture for real-data anchoring against tabular model collapse">
+  <style>
+    :root{
+      --ink:#0f172a; --muted:#475569; --card:#ffffff; --stroke:#e2e8f0;
+      --tint:#fef2f2;
+    }
+    @media (prefers-color-scheme: dark){
+      :root{ --ink:#e6edf3; --muted:#9aa4b2; --card:#161b22; --stroke:#30363d;
+             --tint:#1d1517; }
+    }
+    .ink{fill:var(--ink)} .muted{fill:var(--muted)}
+    .card{fill:var(--card); stroke:var(--stroke); stroke-width:1.25}
+    .t{font-weight:700} .lbl{font-weight:600}
+  </style>
+
+  <defs>
+    <marker id="arw" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#94a3b8"/>
+    </marker>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.10"/>
+    </filter>
+  </defs>
+
+  <!-- header -->
+  <text x="40" y="48" class="ink t" font-size="22">Real-Data Anchoring · Experiment Architecture</text>
+  <text x="40" y="74" class="muted" font-size="13.5">An anchored self-consuming loop — measuring how much real data prevents collapse in tabular generative models</text>
+
+  <g transform="translate(0,30)">
+  <!-- ============ ROW 1 : experiment pipeline ============ -->
+  <!-- connectors -->
+  <line x1="224" y1="168" x2="264" y2="168" stroke="#94a3b8" stroke-width="1.75" marker-end="url(#arw)"/>
+  <line x1="454" y1="168" x2="494" y2="168" stroke="#94a3b8" stroke-width="1.75" marker-end="url(#arw)"/>
+  <line x1="684" y1="168" x2="724" y2="168" stroke="#94a3b8" stroke-width="1.75" marker-end="url(#arw)"/>
+  <line x1="914" y1="168" x2="954" y2="168" stroke="#94a3b8" stroke-width="1.75" marker-end="url(#arw)"/>
+
+  <!-- self-consuming loop arc over the Anchored Loop card -->
+  <path d="M676 120 C 676 74 504 74 504 120" fill="none" stroke="#0891b2" stroke-width="1.75" stroke-dasharray="5 4" marker-end="url(#arw)"/>
+  <text x="590" y="66" text-anchor="middle" fill="#0891b2" class="lbl" font-size="11.5">repeated ×G generations</text>
+
+  <!-- Card 1 Real Data -->
+  <g filter="url(#sh)"><rect x="40" y="120" width="180" height="96" rx="14" class="card"/></g>
+  <circle cx="64" cy="150" r="6" fill="#2563eb"/>
+  <text x="80" y="155" fill="#2563eb" class="t" font-size="15.5">Real Data</text>
+  <text x="58" y="182" class="ink" font-size="11.5">Adult · Bank · Credit-g</text>
+  <text x="58" y="199" class="muted" font-size="11">data.py — real pools</text>
+
+  <!-- Card 2 Synthesizers -->
+  <g filter="url(#sh)"><rect x="270" y="120" width="180" height="96" rx="14" class="card"/></g>
+  <circle cx="294" cy="150" r="6" fill="#7c3aed"/>
+  <text x="310" y="155" fill="#7c3aed" class="t" font-size="15.5">Synthesizers</text>
+  <text x="288" y="182" class="ink" font-size="11.5">Copula · TVAE · CTGAN</text>
+  <text x="288" y="199" class="muted" font-size="11">synth/ — GPU</text>
+
+  <!-- Card 3 Anchored Loop (hero) -->
+  <g filter="url(#sh)"><rect x="500" y="120" width="180" height="96" rx="14" class="card"/></g>
+  <circle cx="524" cy="150" r="6" fill="#0891b2"/>
+  <text x="540" y="155" fill="#0891b2" class="t" font-size="15.5">Anchored Loop</text>
+  <text x="518" y="182" class="ink" font-size="11.5">train → sample → mix</text>
+  <text x="518" y="199" class="muted" font-size="11">α real + (1−α) synthetic</text>
+
+  <!-- Card 4 Metrics -->
+  <g filter="url(#sh)"><rect x="730" y="120" width="180" height="96" rx="14" class="card"/></g>
+  <circle cx="754" cy="150" r="6" fill="#059669"/>
+  <text x="770" y="155" fill="#059669" class="t" font-size="15.5">Metrics</text>
+  <text x="748" y="182" class="ink" font-size="11.5">W1 · corr · support</text>
+  <text x="748" y="199" class="muted" font-size="11">TSTR · C2ST — metrics.py</text>
+
+  <!-- Card 5 Results -->
+  <g filter="url(#sh)"><rect x="960" y="120" width="180" height="96" rx="14" class="card"/></g>
+  <circle cx="984" cy="150" r="6" fill="#d97706"/>
+  <text x="1000" y="155" fill="#d97706" class="t" font-size="15.5">Results</text>
+  <text x="978" y="182" class="ink" font-size="11.5">main.csv</text>
+  <text x="978" y="199" class="muted" font-size="11">12k+ tidy rows</text>
+
+  <!-- ============ elbow ROW1 -> ROW2 ============ -->
+  <polyline points="1050,216 1050,268 820,268 820,316" fill="none" stroke="#94a3b8" stroke-width="1.75" marker-end="url(#arw)"/>
+
+  <!-- ============ ROW 2 : analysis (right -> left) ============ -->
+  <line x1="726" y1="368" x2="686" y2="368" stroke="#94a3b8" stroke-width="1.75" marker-end="url(#arw)"/>
+
+  <!-- Card 6 Analysis -->
+  <g filter="url(#sh)"><rect x="730" y="320" width="180" height="96" rx="14" class="card"/></g>
+  <circle cx="754" cy="350" r="6" fill="#0ea5e9"/>
+  <text x="770" y="355" fill="#0ea5e9" class="t" font-size="15.5">Analysis</text>
+  <text x="748" y="382" class="ink" font-size="11.5">α★ thresholds vs n</text>
+  <text x="748" y="399" class="muted" font-size="11">analyze*.py</text>
+
+  <!-- Card 7 Theory -->
+  <g filter="url(#sh)"><rect x="500" y="320" width="180" height="96" rx="14" class="card"/></g>
+  <circle cx="524" cy="350" r="6" fill="#db2777"/>
+  <text x="540" y="355" fill="#db2777" class="t" font-size="15.5">Theory</text>
+  <text x="518" y="382" class="ink" font-size="11.5">closed-form fixed point</text>
+  <text x="518" y="399" class="muted" font-size="11">Monte-Carlo verified</text>
+
+  <!-- elbow ROW2 -> findings -->
+  <polyline points="590,416 590,446 590,466" fill="none" stroke="#94a3b8" stroke-width="1.75" marker-end="url(#arw)"/>
+
+  <!-- ============ Findings banner ============ -->
+  <g filter="url(#sh)"><rect x="40" y="470" width="1100" height="150" rx="16" fill="var(--tint)" stroke="#dc2626" stroke-width="1.25"/></g>
+  <circle cx="64" cy="502" r="6" fill="#dc2626"/>
+  <text x="80" y="507" fill="#dc2626" class="t" font-size="17">Findings</text>
+
+  <circle cx="66" cy="543" r="3.5" fill="#dc2626"/>
+  <text x="80" y="547" class="ink" font-size="12.5"><tspan class="t">Small datasets need the most anchoring.</tspan> α★ falls with n — but far slower than the 1/n theory predicts (∝ n<tspan dy="-4" font-size="9">−0.26</tspan><tspan dy="4"> ).</tspan></text>
+
+  <circle cx="66" cy="576" r="3.5" fill="#dc2626"/>
+  <text x="80" y="580" class="ink" font-size="12.5"><tspan class="t">No single threshold works.</tspan> Degradation axes diverge (2.7× spread); categorical-support loss behaves like an absorbing state only fresh real rows escape.</text>
+
+  <circle cx="66" cy="609" r="3.5" fill="#dc2626"/>
+  <text x="80" y="613" class="ink" font-size="12.5"><tspan class="t">Variance does not collapse for rank-based copulas</tspan> — a negative result that reshaped the paper's central claim.</text>
+  </g>
+</svg>
