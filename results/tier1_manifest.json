@@ -1,0 +1,64 @@
+{
+  "timestamp_utc": "2026-07-20T16:41:33.052999+00:00",
+  "args": {
+    "datasets": [
+      "adult",
+      "credit-g",
+      "bank-marketing"
+    ],
+    "synths": [
+      "gaussian_copula"
+    ],
+    "alphas": [
+      0.0,
+      0.01,
+      0.02,
+      0.05,
+      0.1,
+      0.2,
+      0.35,
+      0.5,
+      0.75,
+      1.0
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "generations": 12,
+    "n": [
+      2000
+    ],
+    "regimes": [
+      "fixed",
+      "fresh"
+    ],
+    "epochs_vae": 120,
+    "epochs_gan": 200,
+    "out": "H:/Model-paper/results/tier1.csv",
+    "limit_config": null,
+    "device": "cuda",
+    "copula_impl": "torch",
+    "metrics": "fast",
+    "allow_failures": true,
+    "workers": 6
+  },
+  "versions": {
+    "python": "3.12.8",
+    "numpy": "2.1.1",
+    "pandas": "2.2.2",
+    "sklearn": "1.8.0",
+    "scipy": "1.14.1",
+    "torch": "2.10.0+cu128"
+  },
+  "device": {
+    "device_arg": "cuda",
+    "torch_version": "2.10.0+cu128",
+    "cuda_available": true,
+    "cuda_version": "12.8",
+    "python_version": "3.12.8",
+    "gpu_name": "NVIDIA RTX A2000 Laptop GPU",
+    "gpu_capability": "8.6"
+  }
+}

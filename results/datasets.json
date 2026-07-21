@@ -1,0 +1,100 @@
+{
+  "adult": {
+    "name": "adult",
+    "final_shape_full": [
+      45222,
+      15
+    ],
+    "n_real_pool": 20000,
+    "n_holdout": 9045,
+    "n_numeric": 6,
+    "n_categorical": 8,
+    "target": "class",
+    "numeric_cols": [
+      "age",
+      "fnlwgt",
+      "education-num",
+      "capital-gain",
+      "capital-loss",
+      "hours-per-week"
+    ],
+    "categorical_cols": [
+      "workclass",
+      "education",
+      "marital-status",
+      "occupation",
+      "relationship",
+      "race",
+      "sex",
+      "native-country"
+    ]
+  },
+  "credit-g": {
+    "name": "credit-g",
+    "final_shape_full": [
+      1000,
+      21
+    ],
+    "n_real_pool": 800,
+    "n_holdout": 200,
+    "n_numeric": 7,
+    "n_categorical": 13,
+    "target": "class",
+    "numeric_cols": [
+      "duration",
+      "credit_amount",
+      "installment_commitment",
+      "residence_since",
+      "age",
+      "existing_credits",
+      "num_dependents"
+    ],
+    "categorical_cols": [
+      "checking_status",
+      "credit_history",
+      "purpose",
+      "savings_status",
+      "employment",
+      "personal_status",
+      "other_parties",
+      "property_magnitude",
+      "other_payment_plans",
+      "housing",
+      "job",
+      "own_telephone",
+      "foreign_worker"
+    ]
+  },
+  "bank-marketing": {
+    "name": "bank-marketing",
+    "final_shape_full": [
+      45211,
+      17
+    ],
+    "n_real_pool": 20000,
+    "n_holdout": 9043,
+    "n_numeric": 7,
+    "n_categorical": 9,
+    "target": "class",
+    "numeric_cols": [
+      "V1",
+      "V6",
+      "V10",
+      "V12",
+      "V13",
+      "V14",
+      "V15"
+    ],
+    "categorical_cols": [
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "V7",
+      "V8",
+      "V9",
+      "V11",
+      "V16"
+    ]
+  }
+}

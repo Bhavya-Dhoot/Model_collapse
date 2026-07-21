@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Regenerable dataset cache (re-downloaded by code/data.py)
+code/data_cache/
+
+# Run logs and intermediate shards (canonical results are the merged *.csv)
+*.log
+results/*shards*/
+results/*_DONE
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Local agent config
+.claude/settings.local.json
+
+# Paper sources — kept private until conference presentation
+paper/
+paper_extended/
+HANDOFF.md

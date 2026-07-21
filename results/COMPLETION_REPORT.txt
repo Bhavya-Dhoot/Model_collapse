@@ -1,0 +1,36 @@
+COMPLETION REPORT -- 2026-07-20T20:50:44.940211+00:00
+======================================================================
+
+Queue step results:
+  nsweep: OK
+  creditg_n500: OK
+  tier2_ctgan: OK
+  tier3_tvae: OK
+
+Sources merged into main.csv (5 files):
+  tier1.csv (merged): H:\Model-paper\results\tier1.csv
+  nsweep.csv: H:\Model-paper\results\nsweep.csv
+  tier1_creditg_n500.csv: H:\Model-paper\results\tier1_creditg_n500.csv
+  tier2.csv: H:\Model-paper\results\tier2.csv
+  tier3.csv: H:\Model-paper\results\tier3.csv
+
+TOTAL ROWS in main.csv: 4080
+
+Per (dataset, synth, n, regime): row count and distinct alpha count:
+       dataset           synth    n regime  rows  n_alphas
+         adult gaussian_copula  500  fixed   390        10
+         adult gaussian_copula 2000  fixed   390        10
+         adult gaussian_copula 2000  fresh   390        10
+         adult gaussian_copula 8000  fixed   390        10
+         adult            tvae 2000  fixed    90         5
+         adult            tvae 2000  fresh    90         5
+bank-marketing gaussian_copula 2000  fixed   390        10
+bank-marketing gaussian_copula 2000  fresh   390        10
+      credit-g gaussian_copula  500  fixed   390        10
+      credit-g gaussian_copula  500  fresh   390        10
+      credit-g gaussian_copula 2000  fixed   390        10
+      credit-g gaussian_copula 2000  fresh   390        10
+
+Rows with status=failed: 0
+
+sampled_with_replacement is False everywhere: True

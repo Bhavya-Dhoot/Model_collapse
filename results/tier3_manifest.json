@@ -1,0 +1,56 @@
+{
+  "timestamp_utc": "2026-07-20T20:24:07.439312+00:00",
+  "args": {
+    "datasets": [
+      "adult"
+    ],
+    "synths": [
+      "tvae"
+    ],
+    "alphas": [
+      0.0,
+      0.05,
+      0.15,
+      0.5,
+      1.0
+    ],
+    "seeds": [
+      0,
+      1
+    ],
+    "generations": 8,
+    "n": [
+      2000
+    ],
+    "regimes": [
+      "fixed",
+      "fresh"
+    ],
+    "epochs_vae": 120,
+    "epochs_gan": 200,
+    "out": "H:\\Model-paper\\results\\tier3.csv",
+    "limit_config": null,
+    "device": "cuda",
+    "copula_impl": "torch",
+    "metrics": "fast",
+    "allow_failures": true,
+    "workers": 2
+  },
+  "versions": {
+    "python": "3.12.8",
+    "numpy": "2.1.1",
+    "pandas": "2.2.2",
+    "sklearn": "1.8.0",
+    "scipy": "1.14.1",
+    "torch": "2.10.0+cu128"
+  },
+  "device": {
+    "device_arg": "cuda",
+    "torch_version": "2.10.0+cu128",
+    "cuda_available": true,
+    "cuda_version": "12.8",
+    "python_version": "3.12.8",
+    "gpu_name": "NVIDIA RTX A2000 Laptop GPU",
+    "gpu_capability": "8.6"
+  }
+}

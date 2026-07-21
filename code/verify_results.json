@@ -1,0 +1,85 @@
+{
+  "max_rel_err_overall": 0.10766987857332316,
+  "results": [
+    {
+      "n": 200,
+      "alpha": 0.0,
+      "traj_max_rel_err": 0.10766987857332316,
+      "fp_max_rel_err": null,
+      "mc_rel_stderr_Sigma": 0.050493272735777105,
+      "mc_rel_stderr_varmu": 0.04449290443184577
+    },
+    {
+      "n": 200,
+      "alpha": 0.01,
+      "traj_max_rel_err": 0.07927626994090005,
+      "fp_max_rel_err": 0.0653719164197662,
+      "mc_rel_stderr_Sigma": 0.018050235190254206,
+      "mc_rel_stderr_varmu": 0.03792254148586086
+    },
+    {
+      "n": 200,
+      "alpha": 0.05,
+      "traj_max_rel_err": 0.09592186630506835,
+      "fp_max_rel_err": 0.0487633453586582,
+      "mc_rel_stderr_Sigma": 0.0060843301301340075,
+      "mc_rel_stderr_varmu": 0.031516623516687894
+    },
+    {
+      "n": 200,
+      "alpha": 0.2,
+      "traj_max_rel_err": 0.08953211004652327,
+      "fp_max_rel_err": 0.027178455562106442,
+      "mc_rel_stderr_Sigma": 0.004165963514579093,
+      "mc_rel_stderr_varmu": 0.03197581663636427
+    },
+    {
+      "n": 200,
+      "alpha": 1.0,
+      "traj_max_rel_err": 0.06836001491513609,
+      "fp_max_rel_err": 0.04044735435596523,
+      "mc_rel_stderr_Sigma": 0.0022749372910909,
+      "mc_rel_stderr_varmu": 0.03021489426241355
+    },
+    {
+      "n": 2000,
+      "alpha": 0.0,
+      "traj_max_rel_err": 0.06697439900468027,
+      "fp_max_rel_err": null,
+      "mc_rel_stderr_Sigma": 0.011328459872117603,
+      "mc_rel_stderr_varmu": 0.03451231387272445
+    },
+    {
+      "n": 2000,
+      "alpha": 0.01,
+      "traj_max_rel_err": 0.06678400967082937,
+      "fp_max_rel_err": 0.06500801897984161,
+      "mc_rel_stderr_Sigma": 0.004167961971783967,
+      "mc_rel_stderr_varmu": 0.03789311838547178
+    },
+    {
+      "n": 2000,
+      "alpha": 0.05,
+      "traj_max_rel_err": 0.056907519790988584,
+      "fp_max_rel_err": 0.05091620917700618,
+      "mc_rel_stderr_Sigma": 0.0024939859241869078,
+      "mc_rel_stderr_varmu": 0.0299366053328589
+    },
+    {
+      "n": 2000,
+      "alpha": 0.2,
+      "traj_max_rel_err": 0.0758885489829499,
+      "fp_max_rel_err": 0.019295156767197015,
+      "mc_rel_stderr_Sigma": 0.0011422630092969605,
+      "mc_rel_stderr_varmu": 0.03290478725948865
+    },
+    {
+      "n": 2000,
+      "alpha": 1.0,
+      "traj_max_rel_err": 0.07547518720387239,
+      "fp_max_rel_err": 0.04739070271585124,
+      "mc_rel_stderr_Sigma": 0.0007274205976211921,
+      "mc_rel_stderr_varmu": 0.033203079740061904
+    }
+  ]
+}
