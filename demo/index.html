@@ -9,6 +9,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='13' fill='none' stroke='%232f5fe0' stroke-width='4'/><path d='M16 3a13 13 0 0 1 0 26z' fill='%232f5fe0'/></svg>">
 </head>
 <body>
+<a class="skip" href="#mechanism">Skip to content</a>
 
 <nav class="nav">
   <span class="brand">
@@ -26,6 +27,9 @@
   <a class="jump" href="#scaling">Scaling</a>
   <a class="jump" href="#regime">Fresh vs fixed</a>
   <a class="jump" href="#arch">Architectures</a>
+  <button class="icon-btn" id="nav-present" title="Start presentation (P)" aria-label="Start presentation">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>
+  </button>
   <button class="icon-btn" id="theme-toggle" title="Toggle light / dark" aria-label="Toggle light or dark theme">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
       <circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
@@ -195,6 +199,7 @@
 </main>
 
 <script src="lib/chart.js"></script>
+<script src="lib/hover.js"></script>
 <script src="lib/sim.js"></script>
 <script src="panels/loop.js"></script>
 <script src="panels/theory.js"></script>

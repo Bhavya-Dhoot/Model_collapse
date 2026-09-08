@@ -18,12 +18,36 @@ const PALETTE = {
   cat_support: '#b07aa1', tstr_auc: '#edc949', c2st_auc: '#76b7b2',
 };
 
-function renderChart(C, D, sel) {
-  const width = 700, height = 360, pad = { t: 16, r: 16, b: 40, l: 48 };
+const CHART_W = 700, CHART_H = 360, CHART_PAD = { t: 16, r: 16, b: 40, l: 48 };
+
+function computeScales(C, D) {
   const curves = D.degradation_curves;
   const maxY = Math.max(...AXES.flatMap((a) => curves[a].points.map((p) => p.deg))) * 1.08 || 1;
-  const x = C.linear(0, 1, pad.l, width - pad.r);
-  const y = C.linear(0, maxY, height - pad.b, pad.t);
+  const x = C.linear(0, 1, CHART_PAD.l, CHART_W - CHART_PAD.r);
+  const y = C.linear(0, maxY, CHART_H - CHART_PAD.b, CHART_PAD.t);
+  return { x, y };
+}
+
+function degradationHoverSpec(C, D, x, y) {
+  const curves = D.degradation_curves;
+  const xs = curves[AXES[0]].points.map((p) => p.alpha);
+  const series = AXES.map((a) => ({
+    label: LABELS[a], color: PALETTE[a],
+    values: curves[a].points.map((p) => (p.deg === null || p.deg === undefined ? null : p.deg)),
+  }));
+  return {
+    x, y, xs, series,
+    pad: CHART_PAD, width: CHART_W, height: CHART_H,
+    formatX: (v) => C.fmt(v, 2),
+    formatY: (v) => C.fmt(v, 3),
+    ariaLabel: 'Degradation vs alpha, all axes',
+    title: (i) => 'α = ' + C.fmt(xs[i], 2),
+  };
+}
+
+function renderChart(C, D, sel, x, y) {
+  const width = CHART_W, height = CHART_H, pad = CHART_PAD;
+  const curves = D.degradation_curves;
   const f = C.frame({
     width, height, pad, x, y, xLabel: 'α', yLabel: 'Degradation',
     xFormat: (v) => C.fmt(v, 2), yFormat: (v) => C.fmt(v, 2),
@@ -91,14 +115,16 @@ function statRow(C, D) {
 
 function render(el, D) {
   const C = root.AT.chart;
+  const hover = root.AT.hover;
   let sel = 'corr_frob';
+  const scales = computeScales(C, D);
 
   const html = `
     <div class="card">
       <h3>Where each axis crosses its tolerance</h3>
       <p class="sub">Degradation vs. α for every axis at Adult, n = 2000, copula, fixed anchoring.</p>
       ${renderControls(sel)}
-      <div data-role="chart-wrap">${renderChart(C, D, sel)}</div>
+      <div data-role="chart-wrap">${renderChart(C, D, sel, scales.x, scales.y)}</div>
       <p class="sub">Degradation is measured at the terminal generation relative to the α = 1 baseline and clipped at
         zero; α★ is the smallest α whose degradation is within tolerance and stays within it for every larger α,
         linearly interpolated between the two bracketing grid points, so an isolated noisy dip is not counted as a
@@ -120,12 +146,24 @@ function render(el, D) {
 
   const wrap = el.querySelector('[data-role="chart-wrap"]');
   const seg = el.querySelector('[data-role="axis-seg"]');
+
+  function attachHover() {
+    if (hover) hover.attach(wrap, degradationHoverSpec(C, D, scales.x, scales.y));
+  }
+  attachHover();
+
+  const rerender = hover ? hover.throttle(doRerender) : doRerender;
+  function doRerender(btn) {
+    wrap.innerHTML = renderChart(C, D, sel, scales.x, scales.y);
+    attachHover();
+    seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+  }
+
   seg.addEventListener('click', (ev) => {
     const btn = ev.target.closest('button[data-axis]');
     if (!btn) return;
     sel = btn.getAttribute('data-axis');
-    wrap.innerHTML = renderChart(C, D, sel);
-    seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    rerender(btn);
   });
 }
 

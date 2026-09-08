@@ -18,10 +18,34 @@ function isNum(v) { return v !== null && v !== undefined && isFinite(v); }
 function render(el, D) {
   var C = root.AT.chart;
   var S = root.AT.sim;
+  var hover = root.AT.hover;
   var nd = D.nscaling;
   var ns = nd.ns;
   var n0 = ns[0];
   var state = { eps: 0.01, ni: 0 };
+  var scalingScales = null;
+
+  function scalingHoverSpec(x, y) {
+    var series = nd.fit_axes.map(function (ax) {
+      return {
+        label: LABELS[ax], color: COLORS[ax],
+        values: ns.map(function (n, i) { return nd.axes[ax].alpha_star[i]; }),
+      };
+    }).concat(EXCLUDED.map(function (ax) {
+      return {
+        label: LABELS[ax] + ' (excluded)', color: 'var(--ink-3)',
+        values: ns.map(function (n, i) { return nd.axes[ax].alpha_star[i]; }),
+      };
+    }));
+    return {
+      x: x, y: y, xs: ns, series: series,
+      pad: { t: 16, r: 16, b: 40, l: 52 }, width: 700, height: 380,
+      formatX: function (v) { return C.fmt(v, 0); },
+      formatY: function (v) { return C.fmt(v, 3); },
+      ariaLabel: 'alpha star against training budget n',
+      title: function (i) { return 'n = ' + C.fmt(ns[i], 0); },
+    };
+  }
 
   function scalingChart() {
     var allVals = [];
@@ -32,6 +56,7 @@ function render(el, D) {
 
     var x = C.log(ns[0], ns[ns.length - 1], 52, 700 - 16);
     var y = C.linear(0, yMax, 380 - 40, 16);
+    scalingScales = { x: x, y: y };
     var f = C.frame({
       width: 700, height: 380, pad: { t: 16, r: 16, b: 40, l: 52 },
       x: x, y: y, xLabel: 'training budget n (log scale)', yLabel: 'α★',
@@ -80,7 +105,7 @@ function render(el, D) {
         { color: 'var(--danger)', label: 'theory: n^−1', dashed: true },
       ]);
 
-    return '<div class="card">' +
+    return '<div class="card" data-role="chart-wrap">' +
       '<h3>α★ against training budget</h3>' +
       '<p class="sub">Anchoring threshold required at each training budget, per axis, against the fitted and theoretical power laws (shared anchor at n=' + C.fmt(n0, 0) + ').</p>' +
       f.open + body + f.close + C.legend(legendItems) + '</div>';
@@ -134,27 +159,40 @@ function render(el, D) {
       '). That is why the pooled exponent falls far short of 1.</div>';
   }
 
+  function attachChartHover() {
+    if (!hover || !scalingScales) return;
+    var wrap = el.querySelector('[data-role="chart-wrap"]');
+    if (wrap) hover.attach(wrap, scalingHoverSpec(scalingScales.x, scalingScales.y));
+  }
+
   function wire() {
     var slider = el.querySelector('[data-role=eps]');
     if (slider) {
-      slider.addEventListener('input', function () {
-        state.eps = +slider.value;
-        draw();
-      });
+      slider.addEventListener('input', throttledDraw);
     }
     var segBtns = el.querySelectorAll('[data-role=ns] button');
     for (var i = 0; i < segBtns.length; i++) {
       segBtns[i].addEventListener('click', function (ev) {
-        state.ni = ns.indexOf(+ev.currentTarget.getAttribute('data-n'));
-        draw();
+        var n = +ev.currentTarget.getAttribute('data-n');
+        state.ni = ns.indexOf(n);
+        throttledDraw();
       });
     }
+    attachChartHover();
+  }
+
+  function readEpsFromSlider() {
+    var slider = el.querySelector('[data-role=eps]');
+    if (slider) state.eps = +slider.value;
   }
 
   function draw() {
+    readEpsFromSlider();
     el.innerHTML = panelHtml();
     wire();
   }
+
+  var throttledDraw = hover ? hover.throttle(draw) : draw;
 
   draw();
 }

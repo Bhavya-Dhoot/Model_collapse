@@ -97,6 +97,24 @@
       s += f.close;
       $('#th-chart').innerHTML = s;
 
+      // hover readout: the whole point of this panel is comparing the simulated
+      // value against the closed form, so let the audience read both exactly
+      if (root.AT.hover) {
+        var gens = st.theory.slice(0, k + 1).map(function (p) { return p.t; });
+        root.AT.hover.attach($('#th-chart'), {
+          x: x, y: y, xs: gens,
+          series: [
+            { label: 'closed form', color: 'var(--accent)', values: gens.map(function (_, i) { return st.theory[i].sigma; }) },
+            { label: 'simulated', color: 'var(--danger)', values: gens.map(function (_, i) { return st.mc[i].sigma; }) }
+          ],
+          pad: f.pad, width: f.width, height: f.height,
+          formatX: function (v) { return String(v); },
+          formatY: function (v) { return v.toFixed(5); },
+          ariaLabel: 'Retained variance by generation, simulation against closed form',
+          title: function (i) { return 'generation ' + gens[i]; }
+        });
+      }
+
       $('#th-legend').innerHTML = C.legend([
         { label: 'closed form (Propositions 1–3)', color: 'var(--accent)' },
         { label: 'Monte-Carlo, ' + st.reps + ' independent chains', color: 'var(--danger)' },
@@ -164,7 +182,15 @@
       play();
     }
 
-    $('#th-a').addEventListener('input', function (e) { st.ai = +e.target.value; refresh(); });
+    // dragging the slider re-runs a Monte-Carlo, so coalesce to one per frame
+    var onAlpha = root.AT.hover
+      ? root.AT.hover.throttle(function () { refresh(); })
+      : refresh;
+    $('#th-a').addEventListener('input', function (e) {
+      st.ai = +e.target.value;
+      $('#th-a').setAttribute('aria-valuetext', 'alpha ' + alpha());
+      onAlpha();
+    });
     $('#th-n').addEventListener('click', function (e) {
       var b = e.target.closest('button[data-n]');
       if (!b) return;

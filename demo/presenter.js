@@ -300,8 +300,10 @@
       if (st.playing) runFrom(i); else { st.i = i; st.token++; scrollToY(targetFor(SCRIPT[i].id), 600, st.token); paint(); }
     });
 
-    var startBtn = q('#start-presentation');
-    if (startBtn) startBtn.addEventListener('click', function () { st.i = 0; play(); });
+    ['#start-presentation', '#nav-present'].forEach(function (sel) {
+      var b = q(sel);
+      if (b) b.addEventListener('click', function () { st.i = 0; play(); });
+    });
 
     // A deliberate scroll by the presenter takes control back.
     ['wheel', 'touchstart'].forEach(function (ev) {

@@ -103,7 +103,9 @@ function render(el, D) {
       ns.map(function (v) { return '<button data-n="' + v + '" aria-pressed="' + (v === c.n) + '">' + C.fmt(v, 0) + '</button>'; }).join('') +
       '</div></div>' +
       '<div class="ctl"><label>α = ' + C.fmt(c.alpha, 2) + '</label>' +
-      '<input type="range" data-role="alpha" min="0" max="' + (alphas.length - 1) + '" step="1" value="' + state.ai + '"/></div>' +
+      '<input type="range" data-role="alpha" min="0" max="' + (alphas.length - 1) + '" step="1" value="' + state.ai + '" ' +
+      'aria-label="Anchor fraction alpha" aria-valuetext="' +
+      'alpha ' + C.fmt(c.alpha, 2) + ', ' + C.fmt(c.real, 0) + ' real of ' + C.fmt(c.n, 0) + ' rows' + '"/></div>' +
       '</div>' +
       '<p class="sub">α = ' + C.fmt(c.alpha, 2) + ' → ' + C.fmt(c.real, 0) + ' real + ' + C.fmt(c.synth, 0) +
       ' synthetic rows of a ' + C.fmt(c.n, 0) + '-row budget</p>' +
@@ -120,9 +122,12 @@ function render(el, D) {
 
   function wire() {
     var slider = el.querySelector('[data-role=alpha]');
+    var onAlphaInput = root.AT.hover
+      ? root.AT.hover.throttle(function () { draw(); })
+      : draw;
     slider.addEventListener('input', function () {
       state.ai = +slider.value;
-      draw();
+      onAlphaInput();
     });
     var segBtns = el.querySelectorAll('[data-role=ns] button');
     for (var i = 0; i < segBtns.length; i++) {

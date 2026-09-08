@@ -29,11 +29,11 @@ function render(el, D) {
   });
   g1 += C.el('line', { x1: pad1.l, x2: w1 - pad1.r, y1: base, y2: base, class: 'axis' });
 
-  function bar(cx, v, se, color) {
+  function bar(cx, v, se, color, title) {
     var x = cx - barW / 2;
     var yTop = yScale(v);
     var s = '';
-    s += C.el('rect', { x: x, y: yTop, width: barW, height: base - yTop, fill: color });
+    s += C.el('rect', { x: x, y: yTop, width: barW, height: base - yTop, fill: color }, C.el('title', {}, title));
     var seTop = yScale(v + se), seBot = yScale(v - se);
     s += C.el('line', { x1: cx, x2: cx, y1: seTop, y2: seBot, stroke: 'var(--ink)', 'stroke-width': 1 });
     s += C.el('line', { x1: cx - 3, x2: cx + 3, y1: seTop, y2: seTop, stroke: 'var(--ink)', 'stroke-width': 1 });
@@ -43,8 +43,8 @@ function render(el, D) {
 
   rows.forEach(function (r, i) {
     var cx = pad1.l + slot * (i + 0.5);
-    g1 += bar(cx - barW / 2 - 3, r.fixed, r.fixed_se, 'var(--ink-3)');
-    g1 += bar(cx + barW / 2 + 3, r.fresh, r.fresh_se, 'var(--accent)');
+    g1 += bar(cx - barW / 2 - 3, r.fixed, r.fixed_se, 'var(--ink-3)', 'fixed, α = ' + r.alpha + ': ' + C.fmt(r.fixed, 3));
+    g1 += bar(cx + barW / 2 + 3, r.fresh, r.fresh_se, 'var(--accent)', 'fresh, α = ' + r.alpha + ': ' + C.fmt(r.fresh, 3));
     g1 += C.el('text', { x: cx, y: h1 - pad1.b + 18, class: 'tick tick-x' }, String(r.alpha));
     var sig = r.p < 0.05;
     var label = r.p < 0.001 ? 'p<0.001' : 'p=' + C.fmt(r.p, 3);
@@ -95,7 +95,7 @@ function render(el, D) {
 
   var card2a = '<div class="card"><h3>The gap, and when it is real</h3>' +
     '<p class="sub">Filled markers: paired t-test over seeds gives p&lt;0.05. Hollow: not distinguishable from zero.</p>' +
-    fr.open + g2 + fr.close + '</div>';
+    '<div id="regime-diff-chart">' + fr.open + g2 + fr.close + '</div></div>';
 
   /* ---------- Card 2b: table ---------- */
   var trs = rows.map(function (r) {
@@ -131,6 +131,27 @@ function render(el, D) {
   el.innerHTML = card1 +
     '<div class="grid-2">' + card2a + card2b + '</div>' +
     stats + note;
+
+  // hover readout on the diff chart; the p-value has no position on this y
+  // axis, so it goes in the tooltip heading instead of a second, misleading dot
+  if (root.AT.hover) {
+    root.AT.hover.attach(el.querySelector('#regime-diff-chart'), {
+      x: xS, y: yS,
+      xs: rows.map(function (r) { return r.alpha; }),
+      series: [
+        { label: 'fresh − fixed', color: 'var(--accent)', values: diffs },
+      ],
+      pad: fr.pad, width: fr.width, height: fr.height,
+      formatX: function (v) { return String(v); },
+      formatY: function (v) { return C.fmt(v, 3); },
+      ariaLabel: 'Fresh minus fixed support difference, by anchor fraction alpha',
+      title: function (i) {
+        var r = rows[i];
+        var pTxt = r.p < 0.001 ? '<0.001' : C.fmt(r.p, 3);
+        return 'α = ' + r.alpha + ' · p = ' + pTxt;
+      },
+    });
+  }
 }
 
 root.AT = root.AT || {};

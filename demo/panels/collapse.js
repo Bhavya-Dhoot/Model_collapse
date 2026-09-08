@@ -12,6 +12,8 @@
     }
     if (alphas(state.ds).indexOf(state.alpha) < 0) state.alpha = alphas(state.ds).slice(-1)[0];
 
+    var hoverInfo = {};
+
     function chart1(ds, hi) {
       var as = alphas(ds);
       var G = D.meta.terminal_generation;
@@ -51,10 +53,14 @@
           opacity: isHi ? 1 : 0.28,
         });
       });
+      hoverInfo.chart1 = {
+        x: x, y: y, pad: f.pad, width: f.width, height: f.height,
+        xs: D.traj[ds][hi].map(function (p) { return p.g; }),
+      };
       return f.open + body + f.close;
     }
 
-    function smallChart(ds, hi, field, label) {
+    function smallChart(ds, hi, field, label, key) {
       var as = alphas(ds);
       var G = D.meta.terminal_generation;
       var series = as.map(function (a) { return { a: a, pts: D.traj[ds][a] }; });
@@ -79,6 +85,10 @@
           opacity: isHi ? 1 : 0.28,
         });
       });
+      hoverInfo[key] = {
+        x: x, y: y, pad: f.pad, width: f.width, height: f.height,
+        xs: D.traj[ds][hi].map(function (p) { return p.g; }),
+      };
       return f.open + body + f.close;
     }
 
@@ -115,12 +125,67 @@
         '<div class="card">' +
         '<h3>Damage is not confined to utility</h3>' +
         '<div class="grid-2">' +
-        '<div><div class="sub">Correlation-matrix error &mdash; lower is better</div><div data-role="chart2">' + smallChart(ds, a, 'corr_frob', 'corr Frob. err.') + '</div></div>' +
-        '<div><div class="sub">Categorical support retained &mdash; higher is better</div><div data-role="chart3">' + smallChart(ds, a, 'cat_support', 'support retained') + '</div></div>' +
+        '<div><div class="sub">Correlation-matrix error &mdash; lower is better</div><div data-role="chart2">' + smallChart(ds, a, 'corr_frob', 'corr Frob. err.', 'chart2') + '</div></div>' +
+        '<div><div class="sub">Categorical support retained &mdash; higher is better</div><div data-role="chart3">' + smallChart(ds, a, 'cat_support', 'support retained', 'chart3') + '</div></div>' +
         '</div>' +
         '<p class="sub">With no real data (&alpha; = 0) the model degrades away from the train-on-real ceiling every generation; at &alpha; = 1 the curve stays flat at the ceiling. What is plotted here is self-consumption of a model\'s own synthetic output, not ordinary evaluation-set drift.</p>' +
         '</div>';
     }
+
+    function attachHovers() {
+      var AH = root.AT.hover;
+      if (!AH) return;
+      var ds = state.ds, a = state.alpha;
+      var hiColor = C.viridis(+a);
+
+      var c1 = hoverInfo.chart1;
+      if (c1) {
+        var ceilingVal = D.ceiling[ds];
+        AH.attach(el.querySelector('[data-role="chart1"]'), {
+          x: c1.x, y: c1.y, xs: c1.xs, pad: c1.pad, width: c1.width, height: c1.height,
+          series: [
+            { label: 'α = ' + a, color: hiColor, values: D.traj[ds][a].map(function (p) { return p.tstr_auc; }) },
+            { label: 'ceiling', color: 'var(--ink-3)', values: c1.xs.map(function () { return ceilingVal; }) },
+          ],
+          formatX: function (v) { return 'generation ' + v; },
+          formatY: function (v) { return C.fmt(v, 3); },
+          ariaLabel: 'Downstream utility by generation',
+          title: function (i) { return 'generation ' + c1.xs[i]; },
+        });
+      }
+
+      var c2 = hoverInfo.chart2;
+      if (c2) {
+        AH.attach(el.querySelector('[data-role="chart2"]'), {
+          x: c2.x, y: c2.y, xs: c2.xs, pad: c2.pad, width: c2.width, height: c2.height,
+          series: [{ label: 'correlation error', color: hiColor, values: D.traj[ds][a].map(function (p) { return p.corr_frob; }) }],
+          formatX: function (v) { return 'generation ' + v; },
+          formatY: function (v) { return C.fmt(v, 3); },
+          ariaLabel: 'Correlation-matrix error by generation',
+          title: function (i) { return 'generation ' + c2.xs[i]; },
+        });
+      }
+
+      var c3 = hoverInfo.chart3;
+      if (c3) {
+        AH.attach(el.querySelector('[data-role="chart3"]'), {
+          x: c3.x, y: c3.y, xs: c3.xs, pad: c3.pad, width: c3.width, height: c3.height,
+          series: [{ label: 'support retained', color: hiColor, values: D.traj[ds][a].map(function (p) { return p.cat_support; }) }],
+          formatX: function (v) { return 'generation ' + v; },
+          formatY: function (v) { return C.fmt(v, 3); },
+          ariaLabel: 'Categorical support retained by generation',
+          title: function (i) { return 'generation ' + c3.xs[i]; },
+        });
+      }
+    }
+
+    function paint() {
+      el.innerHTML = html();
+      wire();
+      attachHovers();
+    }
+
+    var paintThrottled = root.AT.hover ? root.AT.hover.throttle(paint) : paint;
 
     function wire() {
       var segRoot = el.querySelector('[data-role="seg"]');
@@ -130,7 +195,7 @@
             state.ds = btn.getAttribute('data-ds');
             var as = alphas(state.ds);
             if (as.indexOf(state.alpha) < 0) state.alpha = as.slice(-1)[0];
-            paint();
+            paintThrottled();
           });
         });
       }
@@ -139,14 +204,9 @@
         slider.addEventListener('input', function () {
           var as = alphas(state.ds);
           state.alpha = as[+slider.value];
-          paint();
+          paintThrottled();
         });
       }
-    }
-
-    function paint() {
-      el.innerHTML = html();
-      wire();
     }
 
     paint();

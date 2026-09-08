@@ -62,6 +62,28 @@ Motion notes, since this is a live demo and not a toy:
 | 08 | Architectures | Copula / TVAE / CTGAN, and where the theory stops applying. |
 | 09 | Provenance | The grid, the seed counts and the commands that regenerate all of it. |
 
+## Why the charts are hand-drawn SVG and not a chart library
+
+The bklit UI registry (`@bklit/*`) was evaluated for these charts. It is good, and
+its registry is reachable — but it is React source built on `@visx` and `motion`,
+distributed through shadcn, so it needs a bundler. That is incompatible with both
+things this demo has to be:
+
+- **`dashboard.html` must open by double-click with no network.** ES modules are
+  blocked over `file://`, so a bundled React app cannot be the single offline file
+  that goes on the projector.
+- **The published copy runs under a strict CSP** that allows scripts only from a
+  short CDN allowlist. bklit components are installed source, not a CDN package,
+  so they cannot be loaded there either.
+
+Adopting bklit therefore means adding React, Tailwind, a build step and a `dist/`
+directory, and giving up the double-click file. The charts here are instead drawn
+by `lib/chart.js` (about 160 lines of scale/axis/path helpers) with the shared
+hover readout in `lib/hover.js`, which keeps the whole thing dependency-free.
+
+If a hosted React version is ever wanted, bklit is the right choice for it — it
+would live alongside this, not replace it.
+
 ## Rebuilding after new results
 
 ```bash

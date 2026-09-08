@@ -16,6 +16,8 @@ function render(el, D) {
     });
   });
 
+  const hoverInfo = {};
+
   function varRatioChart(ds) {
     const s0 = D.traj[ds]['0'], s1 = D.traj[ds]['1'];
     const gMax = Math.max(...s0.map((p) => p.g));
@@ -34,10 +36,14 @@ function render(el, D) {
     body += C.line(p0, x, y, { stroke: 'var(--danger)', 'stroke-width': 2.4 });
     body += C.line(p1, x, y, { stroke: 'var(--ok)', 'stroke-width': 2, 'stroke-dasharray': '6 4' });
     body += C.el('text', { x: f.pad.l, y: 12, class: 'annot' }, ds);
+    hoverInfo['varRatio_' + ds] = {
+      x, y, pad: f.pad, width: f.width, height: f.height,
+      xs: s0.map((p) => p.g),
+    };
     return f.open + body + f.close;
   }
 
-  function axisChart(field, label, invertGood) {
+  function axisChart(field, label, invertGood, key) {
     const s0 = D.traj.adult['0'], s1 = D.traj.adult['1'];
     const gMax = Math.max(...s0.map((p) => p.g));
     const vals = s0.map((p) => p[field]).concat(s1.map((p) => p[field]));
@@ -55,6 +61,10 @@ function render(el, D) {
     body += C.band(p0, x, y, { fill: 'var(--danger)', opacity: 0.12 });
     body += C.line(p0, x, y, { stroke: 'var(--danger)', 'stroke-width': 2.4 });
     body += C.line(p1, x, y, { stroke: 'var(--ok)', 'stroke-width': 2, 'stroke-dasharray': '6 4' });
+    hoverInfo[key] = {
+      x, y, pad: f.pad, width: f.width, height: f.height,
+      xs: s0.map((p) => p.g),
+    };
     return f.open + body + f.close;
   }
 
@@ -71,15 +81,15 @@ function render(el, D) {
 
   const html = `
     <div class="card grid-3">
-      <div>
+      <div data-hover="varRatio_adult">
         <h3 style="margin-bottom:8px">Adult</h3>
         ${varRatioChart('adult')}
       </div>
-      <div>
+      <div data-hover="varRatio_credit-g">
         <h3 style="margin-bottom:8px">Credit-G</h3>
         ${varRatioChart('credit-g')}
       </div>
-      <div>
+      <div data-hover="varRatio_bank-marketing">
         <h3 style="margin-bottom:8px">Bank Marketing</h3>
         ${varRatioChart('bank-marketing')}
       </div>
@@ -91,15 +101,15 @@ function render(el, D) {
       ])}
     </div>
     <div class="card grid-2" style="margin-top:16px">
-      <div>
+      <div data-hover="axis_corr_frob">
         <h3>Correlation-matrix error</h3>
         <p class="sub">Adult, α = 0 vs α = 1 (dashed). Rising is bad.</p>
-        ${axisChart('corr_frob', 'corr_frob')}
+        ${axisChart('corr_frob', 'corr_frob', false, 'axis_corr_frob')}
       </div>
-      <div>
+      <div data-hover="axis_cat_support">
         <h3>Categorical support retained</h3>
         <p class="sub">Adult, α = 0 vs α = 1 (dashed). Falling is bad.</p>
-        ${axisChart('cat_support', 'cat_support')}
+        ${axisChart('cat_support', 'cat_support', false, 'axis_cat_support')}
       </div>
     </div>
     <div class="stat-row">
@@ -118,6 +128,55 @@ function render(el, D) {
   `;
 
   el.innerHTML = html;
+
+  const AH = root.AT.hover;
+  if (AH) {
+    datasets.forEach((ds) => {
+      const c = hoverInfo['varRatio_' + ds];
+      if (!c) return;
+      AH.attach(el.querySelector(`[data-hover="varRatio_${ds}"]`), {
+        x: c.x, y: c.y, xs: c.xs, pad: c.pad, width: c.width, height: c.height,
+        series: [
+          { label: 'α = 0', color: 'var(--danger)', values: D.traj[ds]['0'].map((p) => p.var_ratio) },
+          { label: 'α = 1', color: 'var(--ok)', values: D.traj[ds]['1'].map((p) => p.var_ratio) },
+        ],
+        formatX: (v) => 'generation ' + v,
+        formatY: (v) => C.fmt(v, 3),
+        ariaLabel: ds + ' variance ratio by generation',
+        title: (i) => 'generation ' + c.xs[i],
+      });
+    });
+
+    const corr = hoverInfo.axis_corr_frob;
+    if (corr) {
+      AH.attach(el.querySelector('[data-hover="axis_corr_frob"]'), {
+        x: corr.x, y: corr.y, xs: corr.xs, pad: corr.pad, width: corr.width, height: corr.height,
+        series: [
+          { label: 'α = 0', color: 'var(--danger)', values: D.traj.adult['0'].map((p) => p.corr_frob) },
+          { label: 'α = 1', color: 'var(--ok)', values: D.traj.adult['1'].map((p) => p.corr_frob) },
+        ],
+        formatX: (v) => 'generation ' + v,
+        formatY: (v) => C.fmt(v, 3),
+        ariaLabel: 'Adult correlation-matrix error by generation',
+        title: (i) => 'generation ' + corr.xs[i],
+      });
+    }
+
+    const supp = hoverInfo.axis_cat_support;
+    if (supp) {
+      AH.attach(el.querySelector('[data-hover="axis_cat_support"]'), {
+        x: supp.x, y: supp.y, xs: supp.xs, pad: supp.pad, width: supp.width, height: supp.height,
+        series: [
+          { label: 'α = 0', color: 'var(--danger)', values: D.traj.adult['0'].map((p) => p.cat_support) },
+          { label: 'α = 1', color: 'var(--ok)', values: D.traj.adult['1'].map((p) => p.cat_support) },
+        ],
+        formatX: (v) => 'generation ' + v,
+        formatY: (v) => C.fmt(v, 3),
+        ariaLabel: 'Adult categorical support retained by generation',
+        title: (i) => 'generation ' + supp.xs[i],
+      });
+    }
+  }
 }
 
 root.AT = root.AT || {};
