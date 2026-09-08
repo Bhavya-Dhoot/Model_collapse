@@ -29,3 +29,8 @@ plans/
 # Demo build outputs (regenerate with code/build_demo.py)
 demo/dashboard.html
 demo/artifact.html
+
+# React webapp build artifacts
+webapp/node_modules/
+webapp/dist/
+webapp/src/data.json
