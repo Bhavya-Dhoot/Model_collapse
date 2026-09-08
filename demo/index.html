@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real-Data Anchoring Thresholds</title>
+<meta name="description" content="Interactive companion to 'Real-Data Anchoring Thresholds for Preventing Model Collapse in Tabular Generative Models'.">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='13' fill='none' stroke='%232f5fe0' stroke-width='4'/><path d='M16 3a13 13 0 0 1 0 26z' fill='%232f5fe0'/></svg>">
+</head>
+<body>
+
+<nav class="nav">
+  <span class="brand">
+    <svg width="20" height="20" viewBox="0 0 32 32" aria-hidden="true">
+      <circle cx="16" cy="16" r="13" fill="none" stroke="var(--accent)" stroke-width="4"/>
+      <path d="M16 3a13 13 0 0 1 0 26z" fill="var(--accent)"/>
+    </svg>
+    Anchoring&nbsp;Thresholds
+  </span>
+  <a class="jump" href="#mechanism">Mechanism</a>
+  <a class="jump" href="#theory">Theory</a>
+  <a class="jump" href="#collapse">Collapse</a>
+  <a class="jump" href="#variance">Negative result</a>
+  <a class="jump" href="#axes">Thresholds</a>
+  <a class="jump" href="#scaling">Scaling</a>
+  <a class="jump" href="#regime">Fresh vs fixed</a>
+  <a class="jump" href="#arch">Architectures</a>
+  <button class="icon-btn" id="theme-toggle" title="Toggle light / dark" aria-label="Toggle light or dark theme">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>
+    </svg>
+  </button>
+</nav>
+
+<main>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <h1>How much real data keeps a generative model from eating itself?</h1>
+    <p class="lede">
+      Tabular synthesizers are increasingly retrained on data that earlier synthesizers produced.
+      That closed loop degrades the model. Keeping a fraction <span class="mono">α</span> of genuinely
+      real rows in every training set arrests it. We solve that loop exactly for Gaussian fitting,
+      and measure what actually happens on three real benchmarks.
+    </p>
+    <div class="kpis" id="kpis"></div>
+    <p class="byline">
+      <strong>Bhavya Dhoot</strong>, <strong>Yashee Hinger</strong>, <strong>Karthik G. M.</strong>
+      · Vellore Institute of Technology ·
+      every number below is recomputed live from the released <span class="mono">results/main.csv</span>.
+    </p>
+  </header>
+
+  <!-- ============ MECHANISM ============ -->
+  <section id="mechanism">
+    <div class="sec-head">
+      <span class="eyebrow">01 · The mechanism</span>
+      <h2>The anchored self-consuming loop</h2>
+      <p>
+        The training budget is fixed at <span class="mono">n</span> rows. <span class="mono">α</span> does not
+        make the training set bigger — it decides its <em class="term">composition</em>. Move the slider and
+        watch the mix, and the loop, change.
+      </p>
+    </div>
+    <div id="panel-loop"><div class="loading">Loading…</div></div>
+  </section>
+
+  <!-- ============ THEORY ============ -->
+  <section id="theory">
+    <div class="sec-head">
+      <span class="eyebrow">02 · The theory, running live</span>
+      <h2>A closed form you can watch a simulation confirm</h2>
+      <p>
+        For Gaussian maximum-likelihood fitting the loop is exactly solvable. This panel runs a real
+        Monte-Carlo of that loop in your browser and overlays the closed form — nothing is precomputed.
+        Watch the conservation identity <span class="mono">Σ∞ + Var[μ∞] = Σ</span> hold at every α.
+      </p>
+    </div>
+    <div id="panel-theory"><div class="loading">Loading…</div></div>
+  </section>
+
+  <!-- ============ COLLAPSE ============ -->
+  <section id="collapse">
+    <div class="sec-head">
+      <span class="eyebrow">03 · What really happens</span>
+      <h2>Collapse is real, and anchoring arrests it</h2>
+      <p>
+        Measured on three OpenML benchmarks with a Gaussian copula synthesizer, twelve generations
+        deep. Downstream utility is train-on-synthetic / test-on-real AUC, scored every generation
+        against a held-out real set that is never trained on.
+      </p>
+    </div>
+    <div id="panel-collapse"><div class="loading">Loading…</div></div>
+  </section>
+
+  <!-- ============ VARIANCE ============ -->
+  <section id="variance">
+    <div class="sec-head">
+      <span class="eyebrow">04 · The negative result</span>
+      <h2>The classic warning sign never fires</h2>
+      <p>
+        Model collapse is usually described as variance contraction. For a rank-based copula it does
+        not happen: the marginal transform re-normalizes spread every generation, so variance stays
+        flat while the model rots on every other axis. A variance monitor would report health.
+      </p>
+    </div>
+    <div id="panel-variance"><div class="loading">Loading…</div></div>
+  </section>
+
+  <!-- ============ AXES ============ -->
+  <section id="axes">
+    <div class="sec-head">
+      <span class="eyebrow">05 · Why one number is not a specification</span>
+      <h2>Every axis has its own threshold</h2>
+      <p>
+        <span class="mono">α★</span> is the smallest real-data fraction that keeps an axis within
+        tolerance — and stays within it for every larger α, so a single noisy dip is not mistaken for
+        a threshold. The axes disagree by a factor of 2.7 on Adult.
+      </p>
+    </div>
+    <div id="panel-axes"><div class="loading">Loading…</div></div>
+  </section>
+
+  <!-- ============ SCALING ============ -->
+  <section id="scaling">
+    <div class="sec-head">
+      <span class="eyebrow">06 · Scaling</span>
+      <h2>Bigger datasets need less anchoring — far less quickly than theory promises</h2>
+      <p>
+        The closed form predicts <span class="mono">α★ ∝ 1/n</span>. Measured across seven budgets the
+        exponent is <span class="mono">0.26</span>, with a bootstrap interval that excludes 1 by a wide
+        margin. The closed form is an optimistic bound, not a recommendation.
+      </p>
+    </div>
+    <div id="panel-scaling"><div class="loading">Loading…</div></div>
+  </section>
+
+  <!-- ============ REGIME ============ -->
+  <section id="regime">
+    <div class="sec-head">
+      <span class="eyebrow">07 · Not all real data is equal</span>
+      <h2>A lost category only comes back in a row that contains it</h2>
+      <p>
+        Numeric drift is a contraction: any real data pulls it back. Losing a rare category is closer
+        to an absorbing state. So it matters whether the anchor rows are re-used
+        (<em class="term">fixed</em>) or freshly drawn each generation (<em class="term">fresh</em>) —
+        and it matters on exactly one axis.
+      </p>
+    </div>
+    <div id="panel-regime"><div class="loading">Loading…</div></div>
+  </section>
+
+  <!-- ============ ARCHITECTURES ============ -->
+  <section id="arch">
+    <div class="sec-head">
+      <span class="eyebrow">08 · Does it generalize?</span>
+      <h2>Two findings survive the change of architecture</h2>
+      <p>
+        The exact theory covers Gaussian fitting only. Qualitatively, though, all three synthesizers
+        lose categorical support under self-consumption and recover it under anchoring — and none of
+        them shows the clean variance contraction the Gaussian recursion predicts.
+      </p>
+    </div>
+    <div id="panel-arch"><div class="loading">Loading…</div></div>
+  </section>
+
+  <!-- ============ REPRODUCE ============ -->
+  <section id="reproduce">
+    <div class="sec-head">
+      <span class="eyebrow">09 · Provenance</span>
+      <h2>Where these numbers come from</h2>
+    </div>
+    <div id="panel-repro"></div>
+  </section>
+
+  <footer>
+    <p style="max-width:none">
+      Companion to <em>Real-Data Anchoring Thresholds for Preventing Model Collapse in Tabular
+      Generative Models</em>. Charts are drawn from
+      <span class="mono">results/main.csv</span> via <span class="mono">code/export_dashboard_data.py</span>,
+      which reuses the same estimators as the paper's figure scripts. The theory panel simulates the
+      loop live in the browser.
+    </p>
+  </footer>
+
+</main>
+
+<script src="lib/chart.js"></script>
+<script src="lib/sim.js"></script>
+<script src="panels/loop.js"></script>
+<script src="panels/theory.js"></script>
+<script src="panels/collapse.js"></script>
+<script src="panels/variance.js"></script>
+<script src="panels/axes.js"></script>
+<script src="panels/scaling.js"></script>
+<script src="panels/regime.js"></script>
+<script src="panels/arch.js"></script>
+<script src="panels/repro.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
