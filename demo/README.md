@@ -18,6 +18,36 @@ python -m http.server 8000 --directory demo
 # then open http://localhost:8000/index.html
 ```
 
+## Presentation mode
+
+Click **Start presentation** (or press <kbd>P</kbd>). The page then runs itself:
+it scrolls the argument in order and drives each panel's own controls, so the
+findings demonstrate themselves without anyone touching the laptop.
+
+| Key | Action |
+|-----|--------|
+| `P` | start / pause |
+| `Space` | pause / resume |
+| `←` `→` | previous / next section |
+| `Esc` | exit |
+
+Scrolling the wheel or touching the screen hands control straight back to you.
+Appending `#present` to the URL starts the tour on load, for a kiosk.
+
+Motion notes, since this is a live demo and not a toy:
+
+- **One scroll authority.** A single `requestAnimationFrame` loop owns scroll
+  while presenting, and the CSS `scroll-behavior: smooth` is switched off for
+  the duration so the two never fight. No external motion library is used --
+  the page has to run with no network.
+- **A watchdog behind every animation.** Browsers stop firing animation frames
+  in a backgrounded tab or on a sleeping display. Without a guard the tour
+  would wedge mid-talk, so if frames stop arriving the step lands instantly and
+  the tour carries on.
+- **`prefers-reduced-motion` is a designed branch, not a kill switch.** The
+  tour still advances and still performs; it jumps between sections and steps
+  controls discretely instead of easing them.
+
 ## What is on the page
 
 | # | Section | What it shows |
@@ -49,16 +79,19 @@ would silently change the published numbers. Each panel is therefore pinned to
 the grid its section of the paper used:
 
 - **Trajectories, per-axis α★, degradation curves** — the 3-seed primary grid
-  (paper, Results VI-A to VI-D). This reproduces Table I exactly for
-  Adult n=2000, bank-marketing n=2000 and credit-g n=2000.
+  (paper, Results VI-A to VI-D). This reproduces every row of Table I exactly.
 - **Fresh vs fixed** — all 15 seeds, paired t-test, as stated in Results VI-E.
 - **n-sweep** — 8 seeds, one absolute tolerance per axis anchored at n=250.
 
-## Known gap
+## A correction this demo caught
 
-The paper's Table I row for **Adult at n=500** does not reproduce from the
-released `results/main.csv`, nor from the saved `results/analysis_thresholds.csv`
-(which gives 0.291 / 0.409 / 0.632 / 0.500 against the printed
-0.429 / 0.610 / 0.788 / 0.576). That row appears to come from a shard set that
-predates the current merge. The demo therefore shows the three rows that do
-reproduce. Worth correcting in the camera-ready.
+Building the demo surfaced that the paper's Table I row for **Adult at n=500**
+did not reproduce from the released results. Recomputing from
+`results/main.csv` on the paper's own three-seed primary grid -- and
+cross-checking against the saved `results/analysis_thresholds.csv` -- gave
+0.291 / 0.409 / 0.632 / 0.500 (spread 0.480) against the printed
+0.429 / 0.610 / 0.788 / 0.576 (spread 0.442). No seed subset, tolerance or
+budget reproduced the printed row; it came from a shard set predating the
+current merge. **The paper has been corrected**, and all four rows of Table I
+now reproduce exactly from the released data. The other three rows were
+correct as printed.

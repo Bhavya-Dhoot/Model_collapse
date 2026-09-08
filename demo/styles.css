@@ -261,3 +261,72 @@ footer {
 footer a { color: var(--ink-2); }
 
 .loading { padding: 60px 0; text-align: center; color: var(--ink-3); }
+
+/* ============================================================
+   Presentation mode
+   Motion is confined to the tour: the bar and progress explain
+   position in the talk; nothing here animates decoratively.
+   ============================================================ */
+
+.hero-cta { display: flex; align-items: center; gap: 14px; margin-top: 26px; flex-wrap: wrap; }
+.hero-cta .hint { font-size: 13px; color: var(--ink-3); }
+.hero-cta kbd {
+  font: 600 11.5px var(--mono); border: 1px solid var(--rule); border-bottom-width: 2px;
+  border-radius: 5px; padding: 2px 6px; background: var(--paper-2); color: var(--ink-2);
+}
+.btn.lg { padding: 11px 20px; font-size: 14.5px; display: inline-flex; align-items: center; gap: 9px; }
+
+#presenter-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 90;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: saturate(1.6) blur(12px);
+  border-top: 1px solid var(--rule);
+  box-shadow: 0 -6px 24px rgba(16, 21, 28, .07);
+}
+#pr-progress-track { height: 2px; background: var(--rule-2); overflow: hidden; }
+#pr-progress {
+  height: 100%; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0);
+  transition: transform .55s cubic-bezier(.4, .0, .2, 1);
+}
+.pr-inner {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px max(20px, calc((100vw - var(--maxw)) / 2));
+}
+.pr-btn {
+  border: 1px solid var(--rule); background: var(--paper-2); color: var(--ink-2);
+  width: 34px; height: 34px; border-radius: 9px; cursor: pointer;
+  display: grid; place-items: center; flex: none;
+}
+.pr-btn:hover { color: var(--ink); border-color: var(--ink-3); }
+.pr-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pr-btn:focus-visible, .dot:focus-visible, .btn:focus-visible, .icon-btn:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.pr-meta { display: flex; flex-direction: column; line-height: 1.25; margin-left: 4px; min-width: 130px; }
+#pr-label { font: 600 13.5px var(--sans); color: var(--ink); }
+#pr-count { font: 500 11px var(--mono); color: var(--ink-3); }
+#pr-dots { display: flex; gap: 6px; margin-left: auto; }
+#pr-dots .dot {
+  width: 9px; height: 9px; border-radius: 50%; padding: 0; cursor: pointer;
+  border: 1px solid var(--rule); background: var(--paper-3);
+  transition: background .25s ease, border-color .25s ease, transform .25s ease;
+}
+#pr-dots .dot.done { background: color-mix(in srgb, var(--accent) 45%, transparent); border-color: transparent; }
+#pr-dots .dot.on { background: var(--accent); border-color: transparent; transform: scale(1.45); }
+
+/* While presenting, keep the reading column clear of the bar. */
+html.presenting body { padding-bottom: 64px; }
+html.presenting .nav { opacity: .55; transition: opacity .3s ease; }
+html.presenting .nav:hover { opacity: 1; }
+
+@media (max-width: 760px) {
+  #pr-dots { display: none; }
+  .pr-meta { min-width: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  #pr-progress { transition: none; }
+  #pr-dots .dot { transition: none; }
+  .card, .kpi { transition: none; }
+}

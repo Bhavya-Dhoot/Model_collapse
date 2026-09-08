@@ -32,6 +32,15 @@
     });
 
     wireChrome();
+
+    // presentation mode last: it queries the panels' controls, so they must exist
+    if (window.AT.presenter && typeof window.AT.presenter.init === 'function') {
+      try {
+        window.AT.presenter.init();
+      } catch (err) {
+        if (window.console) console.error('[presenter]', err);
+      }
+    }
   }
 
   function renderKpis(D) {
