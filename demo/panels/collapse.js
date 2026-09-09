@@ -5,7 +5,9 @@
   function render(el, D) {
     var C = root.AT.chart;
     var datasets = Object.keys(D.traj);
-    var state = { ds: datasets.indexOf('adult') >= 0 ? 'adult' : datasets[0], alpha: '1' };
+    // open on alpha = 0: this section is about collapse, so it must show the
+    // collapsing trajectory, not the flat alpha = 1 control
+    var state = { ds: datasets.indexOf('adult') >= 0 ? 'adult' : datasets[0], alpha: '0' };
 
     function alphas(ds) {
       return Object.keys(D.traj[ds]).sort(function (a, b) { return +a - +b; });
