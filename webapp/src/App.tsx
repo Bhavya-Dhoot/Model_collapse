@@ -1,13 +1,13 @@
 import { motion, useReducedMotion } from 'motion/react'
 import type { ReactNode } from 'react'
 import { Section, ThemeToggle } from '@/components/Shell'
+import { Hero } from '@/components/Hero'
 import { LoopAnimation } from '@/panels/LoopAnimation'
 import { Thresholds } from '@/panels/Thresholds'
 import { Collapse } from '@/panels/Collapse'
 import { Regime } from '@/panels/Regime'
 import { Scaling } from '@/panels/Scaling'
 import { Architectures } from '@/panels/Architectures'
-import { D } from '@/lib/data'
 
 /* One scroll authority: the browser's own scrolling. No smooth-scroll library,
    no scroll-linked scrubbing. Sections rise once as they enter view, from a
@@ -55,20 +55,7 @@ export default function App() {
       </nav>
 
       <main className="mx-auto max-w-6xl px-6 pb-24">
-        <header className="py-14">
-          <h1 className="max-w-[19ch] text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-            How much real data keeps a generative model from eating itself?
-          </h1>
-          <p className="mt-5 max-w-[62ch] text-lg leading-relaxed text-muted-foreground">
-            Tabular synthesizers are increasingly retrained on data an earlier synthesizer produced.
-            That closed loop degrades the model. Keeping a fraction α of genuinely real rows in every
-            training set arrests it — and this page runs that loop live.
-          </p>
-          <p className="mt-6 text-[13.5px] text-muted-foreground">
-            Bhavya Dhoot, Yashee Hinger, Karthik G. M. · Vellore Institute of Technology ·
-            every figure recomputed from {D.meta.rows_total.toLocaleString()} released result rows
-          </p>
-        </header>
+        <Hero />
 
         <Section id="mechanism" eyebrow="The mechanism" title="The anchored self-consuming loop"
           lede="The budget is fixed at n rows; α decides its composition, not its size. The fidelity bar is driven by the paper's own recursion, so what you see is the real trajectory.">

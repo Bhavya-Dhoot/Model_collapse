@@ -1,10 +1,9 @@
 import { BarChart } from '@/components/charts/bar-chart'
 import { Bar } from '@/components/charts/bar'
 import { BarXAxis } from '@/components/charts/bar-x-axis'
-import { BarYAxis } from '@/components/charts/bar-y-axis'
 import { Grid } from '@/components/charts/grid'
 import { ChartTooltip } from '@/components/charts/tooltip'
-import { Card, Legend, Stat } from '@/components/Shell'
+import { Card, ChartFrame, Legend, Stat } from '@/components/Shell'
 import { AXIS_COLOR, AXIS_LABEL, D, fmt, type Axis } from '@/lib/data'
 
 /* How anchoring cost falls as the real-data budget n grows. The theoretical
@@ -27,23 +26,27 @@ export function Scaling() {
   const corrFrob = axes.corr_frob
   const w1 = axes.w1
 
+  const maxV = Math.max(
+    ...byN.flatMap((row) => fit_axes.map((a) => row[a]))
+      .filter((v): v is number => v !== null && v !== undefined && Number.isFinite(v as number)),
+  )
+
   return (
     <div className="grid gap-4">
       <Card
         title="α★ falls as the real-data budget grows"
         sub="One row per training budget n, one bar per axis fit to the scaling law. Missing bars mean the axis's threshold was undefined at that budget (not zero)."
       >
-        <div className="h-[400px]">
-          <BarChart data={byN} xDataKey="name" barGap={0.25}>
-            <Grid horizontal numTicksRows={5} />
+        <ChartFrame max={maxV} unit="α★" decimals={2}>
+          <BarChart data={byN} xDataKey="name" aspectRatio="16 / 6" barGap={0.25}>
+            <Grid horizontal numTicksRows={4} />
             {fit_axes.map((a) => (
               <Bar key={a} dataKey={a} fill={AXIS_COLOR[a as Axis]} />
             ))}
             <BarXAxis showAllLabels />
-            <BarYAxis />
             <ChartTooltip />
           </BarChart>
-        </div>
+        </ChartFrame>
         <Legend items={fit_axes.map((a) => ({ label: AXIS_LABEL[a as Axis], color: AXIS_COLOR[a as Axis] }))} />
 
         <div className="mt-5 flex flex-wrap gap-6">

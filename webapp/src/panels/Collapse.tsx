@@ -2,10 +2,9 @@ import { useState } from 'react'
 import { BarChart } from '@/components/charts/bar-chart'
 import { Bar } from '@/components/charts/bar'
 import { BarXAxis } from '@/components/charts/bar-x-axis'
-import { BarYAxis } from '@/components/charts/bar-y-axis'
 import { Grid } from '@/components/charts/grid'
 import { ChartTooltip } from '@/components/charts/tooltip'
-import { Card, Legend, Segmented, Stat } from '@/components/Shell'
+import { Card, ChartFrame, Legend, Segmented, Stat } from '@/components/Shell'
 import { D, DATASETS, alphaKeys, fmt } from '@/lib/data'
 
 /* Story: with no real data (small alpha) the model degrades every generation;
@@ -46,6 +45,13 @@ export function Collapse() {
     control: controlSupport[i]?.value ?? null,
   }))
 
+  const aucMax = Math.max(
+    ...aucData.flatMap((r) => [r.selected, r.control]).filter((v): v is number => v !== null && Number.isFinite(v)),
+  )
+  const supportMax = Math.max(
+    ...supportData.flatMap((r) => [r.selected, r.control]).filter((v): v is number => v !== null && Number.isFinite(v)),
+  )
+
   const gen0 = selectedAuc[0]?.value ?? null
   const terminalValue = selectedAuc[selectedAuc.length - 1]?.value ?? null
   const changed = gen0 !== null && terminalValue !== null ? terminalValue - gen0 : null
@@ -72,15 +78,16 @@ export function Collapse() {
           />
         </div>
 
-        <div className="mt-5 h-[380px]">
-          <BarChart data={aucData} xDataKey="name" barGap={0.3}>
-            <Grid horizontal numTicksRows={5} />
-            <Bar dataKey="selected" fill="var(--chart-1)" />
-            <Bar dataKey="control" fill="var(--chart-2)" />
-            <BarXAxis maxLabels={8} />
-            <BarYAxis />
-            <ChartTooltip />
-          </BarChart>
+        <div className="mt-5">
+          <ChartFrame max={aucMax} unit="AUC" decimals={2}>
+            <BarChart data={aucData} xDataKey="name" aspectRatio="16 / 6" barGap={0.3}>
+              <Grid horizontal numTicksRows={4} />
+              <Bar dataKey="selected" fill="var(--chart-1)" />
+              <Bar dataKey="control" fill="var(--chart-2)" />
+              <BarXAxis maxLabels={8} />
+              <ChartTooltip />
+            </BarChart>
+          </ChartFrame>
         </div>
         <Legend
           items={[
@@ -105,16 +112,15 @@ export function Collapse() {
         title="Categorical support retained"
         sub="The same contrast for how much of the original categorical support survives regeneration. A collapse that erases rare categories can still look fine on an aggregate score, so this axis is tracked on its own."
       >
-        <div className="h-[380px]">
-          <BarChart data={supportData} xDataKey="name" barGap={0.3}>
-            <Grid horizontal numTicksRows={5} />
+        <ChartFrame max={supportMax} unit="support" decimals={2}>
+          <BarChart data={supportData} xDataKey="name" aspectRatio="16 / 6" barGap={0.3}>
+            <Grid horizontal numTicksRows={4} />
             <Bar dataKey="selected" fill="var(--chart-1)" />
             <Bar dataKey="control" fill="var(--chart-2)" />
             <BarXAxis maxLabels={8} />
-            <BarYAxis />
             <ChartTooltip />
           </BarChart>
-        </div>
+        </ChartFrame>
         <Legend
           items={[
             { label: `α = ${selectedAlpha}`, color: 'var(--chart-1)' },

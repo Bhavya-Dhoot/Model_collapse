@@ -1,10 +1,9 @@
 import { BarChart } from '@/components/charts/bar-chart'
 import { Bar } from '@/components/charts/bar'
 import { BarXAxis } from '@/components/charts/bar-x-axis'
-import { BarYAxis } from '@/components/charts/bar-y-axis'
 import { Grid } from '@/components/charts/grid'
 import { ChartTooltip } from '@/components/charts/tooltip'
-import { Card, Legend, Pill, Stat } from '@/components/Shell'
+import { Card, ChartFrame, Legend, Pill, Stat, niceTicks } from '@/components/Shell'
 import { D, fmt } from '@/lib/data'
 
 /* Story: numeric drift is a contraction that any amount of real data pulls
@@ -22,6 +21,10 @@ export function Regime() {
     fresh: r.fresh,
   }))
 
+  const chartMax = Math.max(
+    ...chartData.flatMap((r) => [r.fixed, r.fresh]).filter((v): v is number => v !== null && Number.isFinite(v)),
+  )
+
   const peak = rows.reduce((best, r) => (best === null || r.diff > best.diff ? r : best), null as (typeof rows)[number] | null)
   const significant = rows.filter((r) => r.p !== undefined && r.p < 0.05)
   const atZero = rows.find((r) => r.alpha === 0)
@@ -32,16 +35,15 @@ export function Regime() {
         title="Fixed vs. fresh anchoring, by real-data fraction"
         sub="Fixed anchoring reuses one real-data sample across every generation; fresh anchoring draws a new one each generation. Numeric drift is a contraction that either regime pulls back equally -- the two only diverge on categorical support, where a category can only return through an anchor row that happens to contain it."
       >
-        <div className="h-[400px]">
-          <BarChart data={chartData} xDataKey="name" barGap={0.3}>
-            <Grid horizontal numTicksRows={5} />
+        <ChartFrame max={chartMax} ticks={niceTicks(chartMax, 5)} unit="support" decimals={2}>
+          <BarChart data={chartData} xDataKey="name" aspectRatio="16 / 6" barGap={0.3}>
+            <Grid horizontal numTicksRows={4} />
             <Bar dataKey="fixed" fill="var(--chart-3)" />
             <Bar dataKey="fresh" fill="var(--chart-1)" />
             <BarXAxis showAllLabels />
-            <BarYAxis />
             <ChartTooltip />
           </BarChart>
-        </div>
+        </ChartFrame>
         <Legend items={[
           { label: 'fixed anchoring', color: 'var(--chart-3)' },
           { label: 'fresh anchoring', color: 'var(--chart-1)' },

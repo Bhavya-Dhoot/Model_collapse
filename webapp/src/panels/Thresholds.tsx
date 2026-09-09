@@ -1,10 +1,9 @@
 import { BarChart } from '@/components/charts/bar-chart'
 import { Bar } from '@/components/charts/bar'
 import { BarXAxis } from '@/components/charts/bar-x-axis'
-import { BarYAxis } from '@/components/charts/bar-y-axis'
 import { Grid } from '@/components/charts/grid'
 import { ChartTooltip } from '@/components/charts/tooltip'
-import { Card, Legend, Stat } from '@/components/Shell'
+import { Card, ChartFrame, Legend, Stat } from '@/components/Shell'
 import { AXES, AXIS_COLOR, AXIS_LABEL, D, fmt, type Axis } from '@/lib/data'
 
 /* Per-axis anchoring thresholds. This is a comparison of magnitudes across
@@ -34,21 +33,24 @@ export function Thresholds() {
     return row
   })
 
+  const maxPerAxis = Math.max(...perAxis.map((r) => r.alphaStar as number))
+  const maxByDataset = Math.max(...byDataset.flatMap((r) =>
+    COLLAPSE_AXES.map((a) => r[a]).filter((v): v is number => typeof v === 'number' && Number.isFinite(v))))
+
   return (
     <div className="grid gap-4">
       <Card
         title="Where each axis crosses its tolerance"
         sub={`Adult at n=2000, Gaussian copula, fixed anchoring. α★ is the smallest real-data fraction that keeps an axis within tolerance and stays within it for every larger α, so an isolated noisy dip is not counted as a threshold.`}
       >
-        <div className="h-[380px]">
-        <BarChart data={perAxis} xDataKey="name" barGap={0.3}>
-          <Grid horizontal numTicksRows={5} />
-          <Bar dataKey="alphaStar" fill="var(--chart-1)" />
-          <BarXAxis maxLabels={7} showAllLabels />
-          <BarYAxis />
-          <ChartTooltip />
-        </BarChart>
-        </div>
+        <ChartFrame max={maxPerAxis} unit="α★" decimals={2}>
+          <BarChart data={perAxis} xDataKey="name" aspectRatio="16 / 6" barGap={0.3}>
+            <Grid horizontal numTicksRows={4} />
+            <Bar dataKey="alphaStar" fill="var(--chart-1)" />
+            <BarXAxis maxLabels={7} showAllLabels />
+            <ChartTooltip />
+          </BarChart>
+        </ChartFrame>
         <Legend items={[{ label: 'α★ — required real-data fraction', color: 'var(--chart-1)' }]} />
 
         <div className="mt-5 flex flex-wrap gap-6">
@@ -69,15 +71,16 @@ export function Thresholds() {
         title="The disagreement is not specific to one dataset"
         sub="Each group is a dataset and training budget; each bar an axis. The binding axis changes between datasets, which is the point — there is no single number to ship."
       >
-        <BarChart data={byDataset} xDataKey="name" aspectRatio="5 / 2" barGap={0.25}>
-          <Grid horizontal numTicksRows={5} />
-          {COLLAPSE_AXES.map((a) => (
-            <Bar key={a} dataKey={a} fill={AXIS_COLOR[a as Axis]} />
-          ))}
-          <BarXAxis showAllLabels />
-          <BarYAxis />
-          <ChartTooltip />
-        </BarChart>
+        <ChartFrame max={maxByDataset} unit="α★" decimals={2}>
+          <BarChart data={byDataset} xDataKey="name" aspectRatio="16 / 7" barGap={0.25}>
+            <Grid horizontal numTicksRows={4} />
+            {COLLAPSE_AXES.map((a) => (
+              <Bar key={a} dataKey={a} fill={AXIS_COLOR[a as Axis]} />
+            ))}
+            <BarXAxis showAllLabels />
+            <ChartTooltip />
+          </BarChart>
+        </ChartFrame>
         <Legend items={COLLAPSE_AXES.map((a) => ({ label: AXIS_LABEL[a as Axis], color: AXIS_COLOR[a as Axis] }))} />
       </Card>
     </div>

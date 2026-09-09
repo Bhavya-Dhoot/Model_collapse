@@ -111,3 +111,72 @@ export function ThemeToggle() {
     </button>
   )
 }
+
+/* ---------------------------------------------------------------------------
+   ChartFrame
+
+   bklit's bar charts ship a category axis (BarXAxis for vertical bars,
+   BarYAxis for horizontal ones) but no numeric value axis: values are carried
+   by gridlines and the tooltip. For a research audience that is not enough, so
+   this supplies the missing axis.
+
+   It also owns sizing. bklit's chart root sets `aspect-ratio` on itself and is
+   `overflow-visible`, so wrapping it in a fixed-height box does not constrain
+   it -- the chart simply spills over whatever follows. Here the chart owns its
+   height via aspectRatio and the tick overlay is absolutely positioned on the
+   same box, so the two can never disagree.
+
+   The label positions replicate bklit's own value scale exactly: domain
+   [0, max * 1.1] mapped across the plot area, which sits inside a 40px top and
+   bottom margin.
+   --------------------------------------------------------------------------- */
+
+const CHART_MARGIN_PX = 40
+
+/** Rounded tick values across [0, max], excluding 0 (the baseline). */
+export function niceTicks(max: number, count = 4): number[] {
+  if (!Number.isFinite(max) || max <= 0) return []
+  const raw = max / count
+  const mag = 10 ** Math.floor(Math.log10(raw))
+  const norm = raw / mag
+  const stepSize = (norm >= 7.5 ? 10 : norm >= 3.5 ? 5 : norm >= 1.5 ? 2 : 1) * mag
+  const out: number[] = []
+  for (let v = stepSize; v <= max + stepSize * 1e-9; v += stepSize) {
+    out.push(Number(v.toPrecision(12)))
+  }
+  return out
+}
+
+export function ChartFrame({
+  max, ticks, unit, children, decimals = 2,
+}: {
+  max: number
+  ticks?: number[]
+  unit?: string
+  decimals?: number
+  children: ReactNode
+}) {
+  const domainMax = max * 1.1
+  const values = ticks ?? niceTicks(max)
+  return (
+    <div className="relative">
+      {children}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        {values.map((v) => (
+          <span
+            key={v}
+            className="absolute left-0 w-8 -translate-y-1/2 text-right font-mono text-[10.5px] tabular-nums text-muted-foreground"
+            style={{ top: `calc(${CHART_MARGIN_PX}px + ${1 - v / domainMax} * (100% - ${CHART_MARGIN_PX * 2}px))` }}
+          >
+            {v.toFixed(decimals)}
+          </span>
+        ))}
+      </div>
+      {unit && (
+        <span className="pointer-events-none absolute left-0 top-1.5 font-mono text-[10.5px] uppercase tracking-wider text-muted-foreground">
+          {unit}
+        </span>
+      )}
+    </div>
+  )
+}

@@ -1,10 +1,9 @@
 import { BarChart } from '@/components/charts/bar-chart'
 import { Bar } from '@/components/charts/bar'
 import { BarXAxis } from '@/components/charts/bar-x-axis'
-import { BarYAxis } from '@/components/charts/bar-y-axis'
 import { Grid } from '@/components/charts/grid'
 import { ChartTooltip } from '@/components/charts/tooltip'
-import { Card, Legend, Pill } from '@/components/Shell'
+import { Card, ChartFrame, Legend, Pill, niceTicks } from '@/components/Shell'
 import { D, SYNTH_LABEL, fmt } from '@/lib/data'
 
 /* The exact closed-form theory covers Gaussian maximum-likelihood fitting
@@ -31,6 +30,13 @@ export function Architectures() {
     varRatio: r.a0.var_ratio.end,
   }))
 
+  const supportMax = Math.max(...supportData.flatMap((r) => [r.selfConsuming, r.anchored])
+    .filter((v): v is number => v !== null && v !== undefined && Number.isFinite(v)))
+
+  const varRatioMax = Math.max(...varRatioData.map((r) => r.varRatio)
+    .filter((v): v is number => v !== null && v !== undefined && Number.isFinite(v)))
+  const varRatioTicks = Array.from(new Set([...niceTicks(varRatioMax, 4), 1])).sort((a, b) => a - b)
+
   const varRatioMoves = rows.map((r) => {
     const delta = r.a0.var_ratio.end - r.a0.var_ratio.start
     const tone: 'flat' | 'contracts' | 'inflates' =
@@ -47,16 +53,15 @@ export function Architectures() {
         title="Categorical support"
         sub="End-of-run categorical support at α=0 (self-consuming) versus anchored, for each architecture."
       >
-        <div className="h-[340px]">
-          <BarChart data={supportData} xDataKey="name" barGap={0.3}>
-            <Grid horizontal numTicksRows={5} />
+        <ChartFrame max={supportMax} unit="support" decimals={2}>
+          <BarChart data={supportData} xDataKey="name" aspectRatio="16 / 6" barGap={0.3}>
+            <Grid horizontal numTicksRows={4} />
             <Bar dataKey="selfConsuming" fill="var(--status-bad)" />
             <Bar dataKey="anchored" fill="var(--status-good)" />
             <BarXAxis showAllLabels />
-            <BarYAxis />
             <ChartTooltip />
           </BarChart>
-        </div>
+        </ChartFrame>
         <Legend items={[
           { label: 'Self-consuming (α=0)', color: 'var(--status-bad)' },
           { label: 'Anchored (α=1)', color: 'var(--status-good)' },
@@ -68,15 +73,14 @@ export function Architectures() {
         title="Variance ratio at α=0"
         sub="Self-consuming end-of-run variance ratio per architecture, with how it moved from its start value."
       >
-        <div className="h-[340px]">
-          <BarChart data={varRatioData} xDataKey="name" barGap={0.3}>
-            <Grid horizontal numTicksRows={5} />
+        <ChartFrame max={varRatioMax} ticks={varRatioTicks} unit="variance ratio" decimals={2}>
+          <BarChart data={varRatioData} xDataKey="name" aspectRatio="16 / 6" barGap={0.3}>
+            <Grid horizontal numTicksRows={4} />
             <Bar dataKey="varRatio" fill="var(--chart-1)" />
             <BarXAxis showAllLabels />
-            <BarYAxis />
             <ChartTooltip />
           </BarChart>
-        </div>
+        </ChartFrame>
         <div className="mt-3 flex flex-wrap gap-3">
           {varRatioMoves.map((m) => (
             <span key={m.synth} className="inline-flex items-center gap-2 text-[12.5px] text-muted-foreground">
