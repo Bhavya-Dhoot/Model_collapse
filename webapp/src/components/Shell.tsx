@@ -133,16 +133,52 @@ export function ThemeToggle() {
 
 const CHART_MARGIN_PX = 40
 
-/** Rounded tick values across [0, max], excluding 0 (the baseline). */
+/* bklit builds its value scale as
+     scaleLinear({ range: [innerHeight, 0], domain: [0, max * 1.1], nice: true })
+   so the axis overlay has to reproduce d3's `nice` and `ticks` exactly, or the
+   labels drift away from the gridlines as the value grows. These are direct
+   ports of d3-array's tickIncrement / nice / ticks. */
+
+const E10 = Math.sqrt(50)
+const E5 = Math.sqrt(10)
+const E2 = Math.SQRT2
+
+function tickIncrement(start: number, stop: number, count: number): number {
+  const step = (stop - start) / Math.max(0, count)
+  const power = Math.floor(Math.log10(step))
+  const error = step / 10 ** power
+  if (power >= 0) {
+    return (error >= E10 ? 10 : error >= E5 ? 5 : error >= E2 ? 2 : 1) * 10 ** power
+  }
+  return -(10 ** -power) / (error >= E10 ? 10 : error >= E5 ? 5 : error >= E2 ? 2 : 1)
+}
+
+/** d3's nice() applied to [0, rawMax] — the domain bklit actually plots. */
+export function niceDomainMax(rawMax: number, count = 10): number {
+  if (!Number.isFinite(rawMax) || rawMax <= 0) return 1
+  let stop = rawMax
+  let prestep = Number.NaN
+  for (let i = 0; i < 10; i++) {
+    const step = tickIncrement(0, stop, count)
+    if (step === prestep) break
+    if (step > 0) stop = Math.ceil(stop / step) * step
+    else if (step < 0) stop = Math.floor(stop * step) / step
+    else break
+    prestep = step
+  }
+  return stop
+}
+
+/** d3's ticks() across [0, max], dropping the 0 baseline. */
 export function niceTicks(max: number, count = 4): number[] {
   if (!Number.isFinite(max) || max <= 0) return []
-  const raw = max / count
-  const mag = 10 ** Math.floor(Math.log10(raw))
-  const norm = raw / mag
-  const stepSize = (norm >= 7.5 ? 10 : norm >= 3.5 ? 5 : norm >= 1.5 ? 2 : 1) * mag
+  const step = tickIncrement(0, max, count)
   const out: number[] = []
-  for (let v = stepSize; v <= max + stepSize * 1e-9; v += stepSize) {
-    out.push(Number(v.toPrecision(12)))
+  if (step > 0) {
+    for (let v = step; v <= max + step * 1e-9; v += step) out.push(Number(v.toPrecision(12)))
+  } else {
+    const inv = -step
+    for (let k = 1; k / inv <= max + 1e-12; k++) out.push(Number((k / inv).toPrecision(12)))
   }
   return out
 }
@@ -156,8 +192,8 @@ export function ChartFrame({
   decimals?: number
   children: ReactNode
 }) {
-  const domainMax = max * 1.1
-  const values = ticks ?? niceTicks(max)
+  const domainMax = niceDomainMax(max * 1.1)
+  const values = (ticks ?? niceTicks(domainMax)).filter((v) => v <= domainMax)
   return (
     <div className="relative">
       {children}
